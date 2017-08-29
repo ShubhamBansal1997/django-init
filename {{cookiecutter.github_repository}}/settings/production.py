@@ -16,14 +16,14 @@ from django.utils import six
 
 
 from .common import *  # noqa F405
-from .common import (DATABASES, INSTALLED_APPS, {% if cookiecutter.add_django_auth_wall.lower() == 'y' %}MIDDLEWARE_CLASSES,{%- endif %}
+from .common import (DATABASES, INSTALLED_APPS, {% if cookiecutter.add_django_auth_wall.lower() == 'y' %}MIDDLEWARE,{%- endif %}
                      REST_FRAMEWORK, TEMPLATES, env)
 
 # SITE CONFIGURATION
 # Hosts/domain names that are valid for this site.
 # "*" matches anything, ".example.com" matches example.com and all subdomains
-# See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = ["*"]
+# See https://docs.djangoproject.com/en/1.11/ref/settings/#allowed-hosts
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
 
 SITE_SCHEME = env('SITE_SCHEME', default='https')
 
@@ -31,26 +31,32 @@ SITE_SCHEME = env('SITE_SCHEME', default='https')
 # ------------------------------------------------------------------------------
 # People who get code error notifications.
 # In the format 'Full Name <email@example.com>, Full Name <anotheremail@example.com>'
-ADMINS = getaddresses([env("DJANGO_ADMINS")])
+ADMINS = getaddresses([env('DJANGO_ADMINS')])
 
 # Not-necessarily-technical managers of the site. They get broken link
 # notifications and other various emails.
 MANAGERS = ADMINS
+{%- if cookiecutter.add_django_cors_headers.lower() == 'y' %}
+
+# cors
+# --------------------------------------------------------------------------
+CORS_ORIGIN_WHITELIST = env.list('CORS_ORIGIN_WHITELIST')
+{%- endif %}
 
 # DJANGO_SITES
 # ------------------------------------------------------------------------------
 # see: http://niwinz.github.io/django-sites/latest/
 SITES['remote'] = {  # noqa: F405
-    "domain": env('SITE_DOMAIN'),
-    "scheme": SITE_SCHEME,
-    "name": env('SITE_NAME'),
+    'domain': env('SITE_DOMAIN'),
+    'scheme': SITE_SCHEME,
+    'name': env('SITE_NAME'),
 }
-SITE_ID = env("DJANGO_SITE_ID", default='remote')
+SITE_ID = env('DJANGO_SITE_ID', default='remote')
 {% if cookiecutter.add_django_auth_wall.lower() == 'y' %}
 # Basic Auth Protection
 # -----------------------------------------------------------------------------
 # see: https://github.com/theskumar/django-auth-wall#django-auth-wall
-MIDDLEWARE_CLASSES = ('django_auth_wall.middleware.BasicAuthMiddleware', ) + MIDDLEWARE_CLASSES
+MIDDLEWARE = ['django_auth_wall.middleware.BasicAuthMiddleware', ] + MIDDLEWARE
 {%- endif %}
 
 # If your Django app is behind a proxy that sets a header to specify secure
@@ -68,7 +74,7 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 # -----------------------------------------------------------------------------
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
 # Raises ImproperlyConfigured exception if DJANO_SECRET_KEY not in os.environ
-SECRET_KEY = env("DJANGO_SECRET_KEY")
+SECRET_KEY = env('DJANGO_SECRET_KEY')
 
 if SITE_SCHEME == 'https':
     # set this to 60 seconds and then to 518400 when you can prove it works
@@ -92,9 +98,8 @@ if ENABLE_MEDIA_UPLOAD_TO_S3:
     AWS_SECRET_ACCESS_KEY = env('DJANGO_AWS_SECRET_ACCESS_KEY')
     AWS_STORAGE_BUCKET_NAME = env('DJANGO_AWS_STORAGE_BUCKET_NAME')
     AWS_QUERYSTRING_AUTH = False
-    AWS_S3_HOST = env('DJANGO_AWS_S3_HOST')
-    AWS_S3_REGION_NAME = env('DJANGO_AWS_S3_REGION_NAME')
-    AWS_S3_SIGNATURE_VERSION = env('DJANGO_AWS_S3_SIGNATURE_VERSION')
+    AWS_S3_HOST = env('DJANGO_AWS_S3_HOST', default='')
+    AWS_S3_REGION_NAME = env('DJANGO_AWS_S3_REGION_NAME', default='')
 
     # AWS cache settings, don't change unless you know what you're doing.
     AWS_EXPIRY = 60 * 60 * 24 * 7  # 1 week
@@ -114,28 +119,29 @@ if ENABLE_MEDIA_UPLOAD_TO_S3:
 # ------------------------------------------------------------------------------
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL',
                          default='{{ cookiecutter.default_from_email }}')
-EMAIL_HOST = env("EMAIL_HOST")
-EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
+EMAIL_HOST = env('EMAIL_HOST')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 EMAIL_HOST_USER = env('EMAIL_HOST_USER')
-EMAIL_PORT = env.int("EMAIL_PORT", default=587)
-EMAIL_SUBJECT_PREFIX = env("EMAIL_SUBJECT_PREFIX", default='[{{cookiecutter.project_name}}] ')
+EMAIL_PORT = env.int('EMAIL_PORT', default=587)
+EMAIL_SUBJECT_PREFIX = env('EMAIL_SUBJECT_PREFIX', default='[{{cookiecutter.project_name}}] ')
 EMAIL_USE_TLS = True
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 # DATABASE CONFIGURATION
 # ------------------------------------------------------------------------------
 # Raises ImproperlyConfigured exception if DATABASE_URL not in os.environ
-DATABASES['default'].update(env.db("DATABASE_URL"))  # Should not override all db settings
+DATABASES['default'].update(env.db('DATABASE_URL'))  # Should not override all db settings
 {% if cookiecutter.postgis == 'y' %}DATABASES['default']['ENGINE'] = 'django.contrib.gis.db.backends.postgis'{% endif %}
 
 # CACHING
 # ------------------------------------------------------------------------------
+# Note: Specify different redis database name, if same redis instance is used.
 CACHES = {
     'default': {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": env('REDIS_URL', default="redis://localhost:6379/"),
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': env('REDIS_URL', default='redis://localhost:6379/0'),
         'OPTIONS': {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
             'PARSER_CLASS': 'redis.connection.HiredisParser',
             'CONNECTION_POOL_CLASS': 'redis.BlockingConnectionPool',
             'CONNECTION_POOL_CLASS_KWARGS': {
@@ -147,9 +153,9 @@ CACHES = {
     }
 }
 
-# https://docs.djangoproject.com/en/1.8/topics/http/sessions/#using-cached-sessions
-SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
-SESSION_CACHE_ALIAS = "default"
+# https://docs.djangoproject.com/en/1.10/topics/http/sessions/#using-cached-sessions
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+SESSION_CACHE_ALIAS = 'default'
 
 # TEMPLATE CONFIGURATION
 # -----------------------------------------------------------------------------

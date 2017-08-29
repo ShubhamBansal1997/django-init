@@ -7,7 +7,7 @@ __Version:__ {{ cookiecutter.version }}
 
 ## Getting up and running
 
-Minimum requirements: **pip, fabric, python3{% if cookiecutter.webpack == 'y' %}, node, npm{% endif %} & [postgres][install-postgres]{% if cookiecutter.postgis == 'y' %} with postgis{% endif %}**, setup is tested on Mac OSX only.
+Minimum requirements: **pip, fabric, python3{% if cookiecutter.add_celery.lower() == 'y' %}, redis{% endif %}{% if cookiecutter.webpack == 'y' %}, node, npm{% endif %} & [postgres][install-postgres]{% if cookiecutter.postgis == 'y' %} with postgis{% endif %}**, setup is tested on Mac OSX only.
 
 ```
 brew install postgres python3
@@ -49,8 +49,7 @@ Execute the following commands:
 ```
 git checkout master
 fab test
-bumpversion release
-bumpversion --no-tag patch # 'patch' can be replaced with 'minor' or 'major'
+bumpversion patch  # 'patch' can be replaced with 'minor' or 'major'
 git push origin master
 git push origin master --tags
 git checkout qa

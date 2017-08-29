@@ -38,6 +38,10 @@ if echo "{{ cookiecutter.webpack }}" | grep -iq "^n"; then
     rm -f webpack-stats.json
 fi
 
+if echo "{{ cookiecutter.add_celery }}" | grep -iq "^n"; then
+    rm -rf {{ cookiecutter.main_module }}/celery.py
+fi
+
 if echo "$yn" | grep -iq "^y"; then
     echo "==> Checking system dependencies. You may need to enter your sudo password."
 
@@ -61,10 +65,6 @@ if echo "$yn" | grep -iq "^y"; then
 
     echo "${green}==> Setup the project dependencies and database for local development${reset}"
     fab init
-
-    echo "==> Bumpversion 0.1.0-dev"
-    source venv/bin/activate
-    bumpversion --no-tag minor
 
     OUT=$?
     if [ $OUT -eq 0 ]; then

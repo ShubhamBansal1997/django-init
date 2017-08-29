@@ -15,15 +15,15 @@ from django.views.generic import TemplateView
 # {{ cookiecutter.project_name }} Stuff
 from {{ cookiecutter.main_module }}.base import views as base_views
 
-from .routers import router
+from . import routers, schemas
 
 handler500 = base_views.server_error
 
 # Top Level Pages
 # ==============================================================================
 urlpatterns = [
-    url(r'^$', TemplateView.as_view(template_name='pages/home.html'), name="home"),
-    url(r'^about/$', TemplateView.as_view(template_name='pages/about.html'), name="about"),
+    url(r'^$', TemplateView.as_view(template_name='pages/home.html'), name='home'),
+    url(r'^about/$', TemplateView.as_view(template_name='pages/about.html'), name='about'),
     # Your stuff: custom urls go here
 ]
 
@@ -33,19 +33,18 @@ urlpatterns += [
         base_views.root_txt_files, name='root-txt-files'),
 
     # Rest API
-    url(r'^api/', include(router.urls)),
-
-    # Browsable API
-    url(r'^api/auth-n/', include('rest_framework.urls', namespace='rest_framework')),
+    url(r'^api/', include(routers.router.urls)),
 
     # Django Admin
-    url(r'^{}/'.format(settings.DJANGO_ADMIN_URL), include(admin.site.urls)),
+    url(r'^{}/'.format(settings.DJANGO_ADMIN_URL), admin.site.urls),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.API_DEBUG:
     urlpatterns += [
         # Browsable API
+        url('^schema/$', schemas.schema_view, name='schema'),
+        url(r'^api-playground/$', schemas.swagger_schema_view, name='api-playground'),
         url(r'^api/auth-n/', include('rest_framework.urls', namespace='rest_framework')),
     ]
 
@@ -63,9 +62,9 @@ if settings.DEBUG:
     urlpatterns += [url(r'^devrecargar/', include('devrecargar.urls', namespace='devrecargar'))]
 
     urlpatterns += [
-        url(r'^400/$', dj_default_views.bad_request, kwargs={'exception': Exception("Bad Request!")}),
-        url(r'^403/$', dj_default_views.permission_denied, kwargs={'exception': Exception("Permission Denied!")}),
+        url(r'^400/$', dj_default_views.bad_request, kwargs={'exception': Exception('Bad Request!')}),
+        url(r'^403/$', dj_default_views.permission_denied, kwargs={'exception': Exception('Permission Denied!')}),
         url(r'^403_csrf/$', get_callable(settings.CSRF_FAILURE_VIEW)),
-        url(r'^404/$', dj_default_views.page_not_found, kwargs={'exception': Exception("Not Found!")}),
+        url(r'^404/$', dj_default_views.page_not_found, kwargs={'exception': Exception('Not Found!')}),
         url(r'^500/$', handler500),
     ]

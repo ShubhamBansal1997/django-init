@@ -1,18 +1,21 @@
 # Core Stuff
 # -------------------------------------
-Django==1.10.5
-django-flat-responsive==1.3.0
+Django==1.11.4
+django-flat-responsive==1.4.1
 
 # WSGI HTTP Server
 # -------------------------------------
-uWSGI==2.0.14
+uWSGI==2.0.15
 
 # Configuration
 # -------------------------------------
 argon2-cffi==16.3.0
-django-environ==0.4.1
+django-environ==0.4.3
 django-sites==0.9
-python-dotenv==0.6.3
+python-dotenv==0.6.4
+{%- if cookiecutter.add_django_cors_headers.lower() == 'y' %}
+django-cors-headers==2.0.2
+{%- endif %}
 
 # Staticfiles
 # -------------------------------------
@@ -20,19 +23,21 @@ whitenoise==3.3.0
 
 # Extensions
 # -------------------------------------
-pytz==2016.10
+pytz==2017.2
 
 # Models
 # -------------------------------------
-psycopg2==2.6.2
+psycopg2==2.7.3
 
-Pillow==4.0.0
-django-versatileimagefield==1.6.3
+Pillow==4.2.1
+django-extensions==1.8.1
 django-uuid-upload-path==1.0.0
+django-versatileimagefield==1.7.1  # versatile image field degrade Pillow version to 4.0.0
 
 # REST APIs
 # -------------------------------------
-djangorestframework==3.5.4
+djangorestframework==3.6.3
+django-rest-swagger==2.1.2
 
 # LOGGING
 # -------------------------------------
@@ -41,7 +46,13 @@ django-log-request-id==1.3.2
 {% if cookiecutter.use_sentry_for_error_reporting == "y" -%}
 # Raven is the Sentry client
 # --------------------------
-raven==6.0.0
+raven==6.1.0
+{%- endif %}
+{%- if cookiecutter.add_celery.lower() == "y" %}
+
+# Async Tasks
+# -------------------------------------
+celery[redis]==4.0.2
 {%- endif %}
 {%- if cookiecutter.webpack.lower() == 'y' %}
 

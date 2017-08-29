@@ -29,6 +29,7 @@ env.static_dir = join(env.apps_dir, 'static')
 env.virtualenv_dir = join(HERE, 'venv')
 env.requirements_file = join(HERE, 'requirements/development.txt')
 env.shell = "/bin/bash -l -i -c"
+
 {%- if cookiecutter.webpack.lower() == 'y' %}
 env.webpack_config = 'webpack.dev.config.js'
 {%- endif %}
@@ -80,7 +81,7 @@ def test(options='--pdb --cov'):
     """
     with virtualenv():
         local('flake8 .')
-        local("py.test %s" % options)
+        local('py.test %s' % options)
 
 
 def serve(host='127.0.0.1:8000'):
@@ -90,6 +91,17 @@ def serve(host='127.0.0.1:8000'):
     install_requirements()
     migrate()
     manage('runserver %s' % host)
+{%- if cookiecutter.add_celery.lower() == 'y' %}
+
+
+def celery():
+    """Run local celery, making sure that dependencies and
+    database migrations are upto date.
+    """
+    install_requirements()
+    migrate()
+    local('celery worker -A {{ cookiecutter.main_module }} -B -l INFO --concurrency=2')
+{%- endif %}
 
 
 def makemigrations(app=''):
@@ -128,12 +140,30 @@ def watch():
 
 #  Enviroments & Deployments
 # ---------------------------------------------------------
+def dev():
+    env.host_group = 'dev'
+    env.remote = 'origin'
+    env.branch = 'master'
+    env.hosts = ['dev.{{ cookiecutter.main_module }}.com']
+    env.dotenv_path = '/home/ubuntu/dev/{{ cookiecutter.main_module }}/.env'
+    env.config_setter = fab.run
+
+
+def qa():
+    env.host_group = 'qa'
+    env.remote = 'origin'
+    env.branch = 'qa'
+    env.hosts = ['qa.{{ cookiecutter.main_module }}.com']
+    env.dotenv_path = '/home/ubuntu/qa/{{ cookiecutter.main_module }}/.env'
+    env.config_setter = fab.run
+
+
 def prod():
     env.host_group = 'production'
     env.remote = 'origin'
     env.branch = 'prod'
     env.hosts = ['prod.{{ cookiecutter.main_module }}.com']
-    env.dotenv_path = '/home/ubuntu/{{ cookiecutter.github_repository }}/.env'
+    env.dotenv_path = '/home/ubuntu/prod/{{ cookiecutter.main_module }}/.env'
     env.config_setter = fab.run
     {%- if cookiecutter.webpack.lower() == 'y' %}
     env.webpack_config = 'webpack.prod.config.js'

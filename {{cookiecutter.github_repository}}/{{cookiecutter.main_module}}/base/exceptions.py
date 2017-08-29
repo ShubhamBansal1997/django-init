@@ -11,7 +11,7 @@ from rest_framework.response import Response
 
 class BaseException(exceptions.APIException):
     status_code = status.HTTP_400_BAD_REQUEST
-    default_detail = _("Unexpected error")
+    default_detail = _('Unexpected error')
 
     def __init__(self, detail=None):
         self.detail = detail or self.default_detail
@@ -22,28 +22,28 @@ class NotFound(BaseException, Http404):
     """
 
     status_code = status.HTTP_404_NOT_FOUND
-    default_detail = _("Not found.")
+    default_detail = _('Not found.')
 
 
 class NotSupported(BaseException):
     status_code = status.HTTP_405_METHOD_NOT_ALLOWED
-    default_detail = _("Method not supported for this endpoint.")
+    default_detail = _('Method not supported for this endpoint.')
 
 
 class BadRequest(BaseException):
     """Exception used on bad arguments detected on api view.
     """
-    default_detail = _("Wrong arguments.")
+    default_detail = _('Wrong arguments.')
 
 
 class WrongArguments(BadRequest):
     """Exception used on bad arguments detected on service. This is same as `BadRequest`.
     """
-    default_detail = _("Wrong arguments.")
+    default_detail = _('Wrong arguments.')
 
 
 class RequestValidationError(BadRequest):
-    default_detail = _("Data validation error")
+    default_detail = _('Data validation error')
 
 
 class PermissionDenied(exceptions.PermissionDenied):
@@ -53,19 +53,48 @@ class PermissionDenied(exceptions.PermissionDenied):
 
 
 class IntegrityError(BadRequest):
-    default_detail = _("Integrity Error for wrong or invalid arguments")
+    default_detail = _('Integrity Error for wrong or invalid arguments')
 
 
 class PreconditionError(BadRequest):
     """Error raised on precondition method on viewset.
     """
-    default_detail = _("Precondition error")
+    default_detail = _('Precondition error')
 
 
 class NotAuthenticated(exceptions.NotAuthenticated):
     """Compatibility subclass of restframework `NotAuthenticated` exception.
     """
     pass
+
+
+def parse_field_errors(field, error_msg, depth=0):
+    # We only parse errors upto 10 nested serializers
+    if depth is not None:
+        assert depth >= 0, "'depth' may not be negative."
+        assert depth <= 10, "'depth' may not be greater than 10."
+
+    errors = []
+
+    if isinstance(error_msg, dict):
+        for error_msg_key, error_msg_values in list(error_msg.items()):
+            for msg in error_msg_values:
+                errors.append(
+                    {
+                        'field': field,
+                        'message': None,
+                        'errors': parse_field_errors(error_msg_key, msg, depth=depth + 1)
+                    }
+                )
+    else:
+        errors.append(
+            {
+                'field': field,
+                'message': error_msg,
+            }
+        )
+
+    return errors
 
 
 def format_exception(exc):
@@ -85,12 +114,7 @@ def format_exception(exc):
                         }
                     )
                 else:
-                    detail['errors'].append(
-                        {
-                            'field': error_key,
-                            'message': error_msg,
-                        }
-                    )
+                    detail['errors'] = detail['errors'] + parse_field_errors(error_key, error_msg)
     elif isinstance(exc.detail, list):
         for error_msg in exc.detail:
             detail['errors'].append(
@@ -120,10 +144,10 @@ def exception_handler(exc, context=None):
 
     if isinstance(exc, exceptions.APIException):
         headers = {}
-        if getattr(exc, "auth_header", None):
-            headers["WWW-Authenticate"] = exc.auth_header
-        if getattr(exc, "wait", None):
-            headers["X-Throttle-Wait-Seconds"] = "%d" % exc.wait
+        if getattr(exc, 'auth_header', None):
+            headers['WWW-Authenticate'] = exc.auth_header
+        if getattr(exc, 'wait', None):
+            headers['X-Throttle-Wait-Seconds'] = '%d' % exc.wait
 
         detail = format_exception(exc)
         return Response(detail, status=exc.status_code, headers=headers)

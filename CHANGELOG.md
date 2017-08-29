@@ -4,11 +4,21 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [1.10.x]
 
+- Handle nested serializer errors in our custom exception handler. (@jainmickey)
+- Remove mock dependency, replace with standard unittest.mock library
+- Add `django-cors-headers` integration (@jainmickey)
+- Add default 'AUTH_PASSWORD_VALIDATORS' in settings
+- Add django-rest-swagger integration
+- Use simplified bumpversion rules, remove requirement of intermediate release tags e.g. `0.1.0-dev`.
+- Add multiple environment support on a single machine (@theskumar)
+- Add .env.sample file (@theskumar)
 - Add django-flat-responsive to give django-admin a responsive touch (@theskumar)
 - Add django_auth_wall to protect staging environments (@theskumar)
 - Replace gunicorn with uwsgi as wsgi handler (@vikalpj)
 
 ### Fixes
+- RemovedInDjango20Warning: Update admin url to new style url include (@theskumar)
+- RemovedInDjango20Warning: Use new-style MIDDLEWARE settings (@theskumar)
 - Fix letsencrtypt, make certbot-auto run in non-interactive mode.
 - Fix `py.test` to load values from .env
 

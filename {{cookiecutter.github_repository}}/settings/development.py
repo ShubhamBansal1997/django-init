@@ -20,7 +20,7 @@ TEMPLATES[0]['OPTIONS']['debug'] = DEBUG  # noqa: F405
 
 INTERNAL_IPS = ('127.0.0.1', '192.168.33.12', )
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ['*']
 
 # Staticfiles
 # ------------------------------------------------------------------------------
@@ -36,6 +36,12 @@ INSTALLED_APPS = ('whitenoise.runserver_nostatic', ) + INSTALLED_APPS
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
 # Note: This key only used for development and testing.
 SECRET_KEY = env("DJANGO_SECRET_KEY", default='CHANGEME!!!')
+{%- if cookiecutter.add_django_cors_headers.lower() == 'y' %}
+
+# cors
+# --------------------------------------------------------------------------
+CORS_ORIGIN_WHITELIST = env.list('CORS_ORIGIN_WHITELIST', default=['localhost', 'localhost:8000'])
+{%- endif %}
 
 # Mail settings
 # ------------------------------------------------------------------------------
@@ -69,7 +75,7 @@ DEVRECARGAR_PATHS_TO_WATCH = [{
 
 # django-debug-toolbar
 # ------------------------------------------------------------------------------
-MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)  # noqa: F405
+MIDDLEWARE += ['debug_toolbar.middleware.DebugToolbarMiddleware', ]  # noqa: F405
 INSTALLED_APPS += ('debug_toolbar', )
 
 DEBUG_TOOLBAR_CONFIG = {

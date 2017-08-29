@@ -5,13 +5,13 @@ Project template for django based projects, optimized for making REST API with d
 
 ## Features
 
-- Django 1.10.x
+- Django 1.11.x
 - Python 3.5.x only
 - [12-Factor][12factor] based settings management via [django-environ], reads settings from `.env` if present.
 - PostresSQL everywhere (support of postgis is available)
 - [Procfile] for deploying to Heroku
 - [Ansible] playbook for deployment to Ubuntu 16 LTS (optional)
-- Designed to work with Django Rest Framework 3.0+.
+- Designed to work with [Django Rest Framework][drf] 3.6.x.
 - Uses `django_sites` instead of `django.contrib.sites`
 - Use [mkdocs] for project documentation.
 - Uses [py.test] as test runner.
@@ -49,6 +49,10 @@ Don't forget to carefully look at the generated README. Awesome, right?
 
 You can also explore the [wiki] section for details on advance setup and usages.
 
+## Release Policy
+
+`django-init` is a rolling release project. Commit and fixes are added to `master` branch on regular basis and always have latest stable django and associated libraries. You are advised to follow-up with changelogs.
+
 ## Changelogs
 
 Refer to [CHANGELOG.md](CHANGELOG.md).
@@ -69,3 +73,4 @@ Built with ♥ at [Fueled](https://fueled.com)
 [django-environ]: https://github.com/joke2k/django-environ
 [Ansible]: http://docs.ansible.com/index.html
 [devrecargar]: https://github.com/scottwoodall/django-devrecargar
+[drf]: http://www.django-rest-framework.org/

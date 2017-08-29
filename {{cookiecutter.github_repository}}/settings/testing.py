@@ -6,7 +6,7 @@ load_dotenv(find_dotenv())
 
 from .development import *  # noqa F405
 
-MEDIA_ROOT = "/tmp"
+MEDIA_ROOT = '/tmp'
 
 SECRET_KEY = 'top-scret!'
 
