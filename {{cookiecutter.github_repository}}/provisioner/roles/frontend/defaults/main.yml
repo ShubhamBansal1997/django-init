@@ -1,0 +1,11 @@
+---
+# Override domain/path/repo in `hosts` for each environment
+frontend_domain_name: '{{ cookiecutter.main_module }}.com'
+frontend_path: '{{ project_path }}/../{{ project_name }}-frontend'
+frontend_repo_url: 'git@github.com:{{ cookiecutter.github_username }}/{{ cookiecutter.frontend_repository }}.git'
+add_frontend_auth: False
+
+project_log_dir: /var/log/django/{{ environment }}/{{ project_name}}
+uwsgi_group: www-data
+webpack_config: '{{ frontend_path }}/build/webpack.prod.js'
+webpack_path: '{{ frontend_path }}/node_modules/.bin/webpack'
