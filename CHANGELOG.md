@@ -4,6 +4,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [1.10.x]
 
+- Upgrade all the systems to use python 3.6.
 - Adds custom Token based authentication for user login and registration. (@CuriousLearner)
 - Separates out celery beat process as different worker for multi-node setups. (@CuriousLearner)
 - Adds `ERROR` level logging to sentry mails. (@CuriousLearner)

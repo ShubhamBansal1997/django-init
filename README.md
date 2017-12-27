@@ -6,7 +6,7 @@ Project template for django based projects, optimized for making REST API with d
 ## Features
 
 - Django 1.11.x
-- Python 3.5.x only
+- Python 3.6.x only
 - [12-Factor][12factor] based settings management via [django-environ], reads settings from `.env` if present.
 - PostresSQL everywhere (support of postgis is available)
 - [Procfile] for deploying to Heroku
